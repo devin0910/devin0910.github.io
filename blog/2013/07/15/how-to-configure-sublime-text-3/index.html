@@ -1,0 +1,259 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>怎样来配置你的Sublime Text 3 - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="最近一直在使用Sublime Text来进行开发，由于需要升级，这里就记录一下升级过程需要注意的事项及自己常用安装包吧。 Package Control 顾名思义，作为一个Sublime Text软件包管理工具，可以帮你便捷地发现、安装、更新和移除第三方包，支持自动地从GitHub， &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://devin0910.github.io/blog/2013/07/15/how-to-configure-sublime-text-3">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:devin0910.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">怎样来配置你的Sublime Text 3</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-07-15T11:18:00+08:00" pubdate data-updated="true">Jul 15<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>最近一直在使用Sublime Text来进行开发，由于需要升级，这里就记录一下升级过程需要注意的事项及自己常用安装包吧。</p>
+
+<h2>Package Control</h2>
+
+<p>顾名思义，作为一个Sublime Text软件包管理工具，可以帮你便捷地发现、安装、更新和移除第三方包，支持自动地从GitHub，BitBucket等代码管理平台中获取第三方包的最新版本。</p>
+
+<p>在Sublime Text 3版中，根据作者介绍可以<a href="http://wbond.net/sublime_packages/package_control/installation#ST3">通过git方式</a>来安装：首先得定位Packages目录（可以通过菜单栏的“Preferences/Browser Packages”打开该目录），接下来你可以在git bash或者命令行中输入一下命令：</p>
+
+<pre><code>cd Packages/  # 切换到上面所提到的目录
+git clone https://github.com/wbond/sublime_package_control.git "Package Control"
+cd "Package Control"
+git checkout python3
+</code></pre>
+
+<p>重启下Sublime，如果你在Preferences菜单下发现多出了Package Settings, Package Control，那么你已安装成功。如果你当前电脑中没有安装git，可以通过<a href="http://qianduanblog.com/1900.html">这篇文章</a>所描述的步骤进行安装。接下来你可以简单地从Preferences/Package Control中启动，也可以直接使用Ctrl + Shift + P输入pgc来找出Package Control相关的命令。</p>
+
+<h2>常用软件包</h2>
+
+<h3>CTags</h3>
+
+<p>首先得在系统中安装Ctags，可以直接在官网中下载并解压，把ctags.exe放到你的Sublime Text所在目录，或者放在系统的搜索路径中。</p>
+
+<p>在Package Control中Install Package中搜索CTags并安装。安装完成之后，可以使用<code>Ctrl + t + r</code>来创建.tags工程符号索引文件，在左侧打开文件列表中的目录上点击右键，可以发现“CTags：Rebuild Tags”来重建Tags。</p>
+
+<h3>SublimeLinter</h3>
+
+<h3>Markdown Preview</h3>
+
+<h3>GBK Encoding Support</h3>
+
+<h3>VAlign</h3>
+
+<p><code>Ctrl + \</code></p>
+
+<h3>PHP Namespace Command</h3>
+
+<h3>Goto Documentation</h3>
+
+<h3>GitGutter</h3>
+
+<h3>Gist</h3>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-07-15T11:18:00+08:00" pubdate data-updated="true">Jul 15<span>th</span>, 2013</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/luan-qi-ba-zao/'>乱七八糟</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://devin0910.github.io/blog/2013/07/15/how-to-configure-sublime-text-3/" data-via="" data-counturl="http://devin0910.github.io/blog/2013/07/15/how-to-configure-sublime-text-3/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/07/12/a-brief-introduction-to-curl/" title="Previous Post: cURL的一些妙用">&laquo; cURL的一些妙用</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/07/15/new-function-array-column-in-php-5-dot-5/" title="Next Post: 关于PHP5.5中的新函数array_column">关于PHP5.5中的新函数array_column &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/09/13/a-new-way-to-set-up-develop-enviroment-using-vagrant/">Vagrant：快速搭建Linux开发环境</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/08/12/creating-permissions-using-bitwise-operators/">使用位运算实现权限管理</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/08/02/setting-up-existing-octopress-blog-on-a-new-computer/">怎样在新的环境中配置原有的Octopress博客</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/23/building-tree-structures-in-php-using-references/">使用PHP引用来生成树结构</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/19/generator-new-feature-in-php/">生成器：PHP5.5中的新特性</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

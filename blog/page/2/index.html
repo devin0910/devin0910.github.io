@@ -1,0 +1,323 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="
+">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://devin0910.github.io/blog/page/2">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:devin0910.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/07/10/parallel-processing-in-php/">细说PHP中的平行处理</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-07-10T16:40:00+08:00" pubdate data-updated="true">Jul 10<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content">
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/07/09/about-database-denormalize/">关于数据库设计中的反规范化</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-07-09T12:04:00+08:00" pubdate data-updated="true">Jul 9<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h2>什么是数据库设计的反规范化</h2>
+
+<p>在关系型数据库中，反规范化是加速读取（数据检索）的方法，在数据库设计时有选择地<strong>在数据结构标准化之后</strong>回加特定的冗余数据示例。反规范化数据库不应该和从未进行过规范化的数据库相混淆。</p>
+
+<h2>VS 规范化数据库设计</h2>
+
+<p>规范化数据库设计在写操作密集型、读比写多的应用中非常好。这是因为以下几个原因：</p>
+
+<p>从某种意义上说，数据库的规范化于反规范化并不相互对立、非此即彼。因为“分解”越深，关系就越多，联接操作就越频繁，最费时间，特别是以查询为主的数据库来说，频繁的联接会影响查询速度。所以，关系有时故意保留成反规范的，或者规范化以后又反规范化了，这样做通常是为了改进性能。</p>
+
+<h2>常用的反规范化设计技术</h2>
+
+<p>在进行反规范化操作事前，要充分考虑数据的存储需求、表的大小、一些特殊的计算（如合计）、数据的物理存储位置等。常用的反规范化技术有一下集中：</p>
+
+<ol>
+<li><p>分割表。如果一张表的数据量很到，可以将该表分割成若干个，方法有一下三种：</p></li>
+<li><p> 水平分割：根据一列或多列的数据值把数据行放到两个独立表中。水平分割通常在以下情况下使用：</p>
+
+<ol>
+<li> 表很大。 分割后降低了查询时读取的数据和索引的页数，同时也降低索引的层数。</li>
+<li> 表中的数据本来就有独立性。 例如表中分别记录歌地区的数据或不同时期的数据。</li>
+<li> 表中的数据需要存放在多个介质上。 例如毕业学生成绩表和在校学生成绩表。</li>
+</ol>
+
+
+<p>  水平分割会增加应用复杂度，它通常在查询时需要多个表明，查询所用数据需要union操作。在许多个数据库应用中，这种复杂性会超过它带来的有点。</p></li>
+<li><p> 垂直分割： 把主码与常用列和不常用列分表放在两个表中。垂直分割可以使数据行变小，减少I/O次数。缺点是需要管理冗余列，查询所有数据需要join操作。</p></li>
+<li><p> 混合分割： 在实际一个用中仅进行单一的水平分割或垂直分割是不够的，通常需要使用两种方式的结合。</p></li>
+<li><p>合并表。合并表和分割表的操作相反，是将几个较小的表合成一个较大的表。如果用户经常需要访问某些表中的数据，可以将这几个表合并为一个表，避免了访问时的联接操作，提高了效率，但同时也失去了数据之间在概念上的分割，可能会有序大量的空值浪费存储空间。</p></li>
+<li>复制表。当不同的用户经常同时读写一个表中的一部分数据时，可以将这些常用数据复制成一个表，即将不同用户的访问分散到了不同的表上，有效减少了竞争，提高了并行处理的能力，改善了性能，但也同时产生了如何保持基本表和复制表之间数据一致的问题。</li>
+<li>增加冗余列。当大量的查询或更新都是基于两个表进行时，可以在其中一个表上增加若干冗余列，避免频繁执行表与表之间的联接操作。但需要注意，增加冗余性是以空间换取效率，并且设计冗余列的更新操作必须对两个表同时进行。</li>
+<li>增加派生列。派生列是对另一个表中的数据进行计算后产生的。增加派生列可以使统计运算减少联接操作。但增加派生列也是以空间换取效率，并且数据列更新时需要对派生列进行相应的更新。</li>
+</ol>
+
+
+<h2>反规范化设计中数据完整性的维护</h2>
+
+<p>数据库技术中的完整性是指数据的正确性、相容性和一致性，使用反规范技术所带来的最大问题是需要维护数据的完整性。通常采用事务逻辑维护、批处理维护和触发器维护等方法来保证数据的完整性。</p>
+
+<ul>
+<li>事务逻辑维护
+该方法要求在同一事务中涉及的表同步进行增、删、改操作。由于不同事务可能对应不同的表，在所有相关表中进行相应操作，容易遗漏，因而采用事务逻辑来维护数据库的完整性风险较大。</li>
+<li>批处理维护
+批处理维护是指对于实时性要求不高的数据库，当冗余列或派生列的修改积累一定时间后，运行一个批处理作业或存储过程对于冗余或派生列进行修改以达到维护数据库完整性的目的。</li>
+<li>触发器维护
+该方法是维护数据库完整性最强大的工具。通过创建触发器，对数据的任何修改可立即触发对对应列的修改，可使最终用户和程序员不受冗余数据的影响。</li>
+</ul>
+
+
+<h2>Conclusion</h2>
+
+<p>参考：</p>
+
+<ol>
+<li><a href="http://www.doc88.com/p-4873964779026.html">关系规范化理论及反规范化设计在数据库中的运用</a></li>
+<li><a href="http://www.ovaistariq.net/199/databases-normalization-or-denormalization-which-is-the-better-technique/">Databases: Normalization or Denormalization. Which is the better technique?</a></li>
+<li><a href="http://webandphp.com/DataModeling104%3ADenormalization">Data Modeling 104: De-normalization</a></li>
+<li><a href="http://database-programmer.blogspot.com/2008/04/denormalization-patterns.html">Denormalization Patterns</a></li>
+</ol>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/07/05/how-to-use-octopress/">怎样使用Octopress来写博客</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-07-05T16:17:00+08:00" pubdate data-updated="true">Jul 5<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h3>需要使用的命令：</h3>
+
+<ul>
+<li>chcp 65001</li>
+<li>rake new_post[&ldquo;Zombie Ninjas Attack: A survivor&rsquo;s retrospective&rdquo;]</li>
+<li>rake generate</li>
+<li>rake preview</li>
+<li>rake deploy</li>
+</ul>
+
+
+<p>安装通过<a href="http://rubyforge.org/frs/download.php/76862/railsinstaller-2.2.1.exe">Railsinstaller</a>（注意：路径不要带空格）。gem uninstall rake删除默认版本，并安装gem install rake -v&#8217;0.9.2.2&#8217;。</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+    <a class="next" href="/">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/09/13/a-new-way-to-set-up-develop-enviroment-using-vagrant/">Vagrant：快速搭建Linux开发环境</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/08/12/creating-permissions-using-bitwise-operators/">使用位运算实现权限管理</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/08/02/setting-up-existing-octopress-blog-on-a-new-computer/">怎样在新的环境中配置原有的Octopress博客</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/23/building-tree-structures-in-php-using-references/">使用PHP引用来生成树结构</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/19/generator-new-feature-in-php/">生成器：PHP5.5中的新特性</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

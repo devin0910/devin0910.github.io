@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Octopress | My Octopress Blog]]></title>
+  <link href="http://devin0910.github.io/blog/categories/octopress/atom.xml" rel="self"/>
+  <link href="http://devin0910.github.io/"/>
+  <updated>2014-04-13T02:25:56+08:00</updated>
+  <id>http://devin0910.github.io/</id>
+  <author>
+    <name><![CDATA[Your Name]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[怎样使用Octopress来写博客]]></title>
+    <link href="http://devin0910.github.io/blog/2013/07/05/how-to-use-octopress/"/>
+    <updated>2013-07-05T16:17:00+08:00</updated>
+    <id>http://devin0910.github.io/blog/2013/07/05/how-to-use-octopress</id>
+    <content type="html"><![CDATA[<h3>需要使用的命令：</h3>
+
+<ul>
+<li>chcp 65001</li>
+<li>rake new_post[&ldquo;Zombie Ninjas Attack: A survivor&rsquo;s retrospective&rdquo;]</li>
+<li>rake generate</li>
+<li>rake preview</li>
+<li>rake deploy</li>
+</ul>
+
+
+<p>安装通过<a href="http://rubyforge.org/frs/download.php/76862/railsinstaller-2.2.1.exe">Railsinstaller</a>（注意：路径不要带空格）。gem uninstall rake删除默认版本，并安装gem install rake -v'0.9.2.2'。</p>
+]]></content>
+  </entry>
+  
+</feed>

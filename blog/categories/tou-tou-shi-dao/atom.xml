@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: 头头是道 | My Octopress Blog]]></title>
+  <link href="http://devin0910.github.io/blog/categories/tou-tou-shi-dao/atom.xml" rel="self"/>
+  <link href="http://devin0910.github.io/"/>
+  <updated>2014-04-13T02:25:56+08:00</updated>
+  <id>http://devin0910.github.io/</id>
+  <author>
+    <name><![CDATA[Your Name]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[控制反转(IoC)与依赖注入(DI)]]></title>
+    <link href="http://devin0910.github.io/blog/2013/07/16/inversion-of-control-and-dependency-injecton/"/>
+    <updated>2013-07-16T12:23:00+08:00</updated>
+    <id>http://devin0910.github.io/blog/2013/07/16/inversion-of-control-and-dependency-injecton</id>
+    <content type="html"><![CDATA[<h2>什么是控制反转</h2>
+
+<p>控制反转（Inversion of control）是面向对象编程中的一种设计原则，可以用来降低计算机代码中的耦合度。控制反转作为一个设计准则具有一下几个意图：</p>
+
+<ul>
+<li>通过接口解耦某项任务的特定实现</li>
+<li>各个模块只关注自己要实现的功能</li>
+<li>各个模块不知道另外的系统做什么，只依赖于它们间的契约</li>
+<li>替换某个模块并不影响其他模块</li>
+</ul>
+
+
+<p>应用控制反转，对象在被创建的时候，由一个调控系统内的所有对象的外界实体将其依赖的对象的引用传递给它，也可以说，依赖被注入到对象中。所以说，控制反转是<em>关于一个对象如何获取它所依赖的对象的引用</em>这个职责的反转。</p>
+
+<h3>关于依赖</h3>
+
+<p>Class X依赖于Class Y只在如下的状况中成立：</p>
+
+<ul>
+<li>X拥有Y的控制并在X中使用</li>
+<li>X是Y的派生类</li>
+<li>X依赖于Z，而Z又依赖于Y（传递性）</li>
+</ul>
+
+
+<p>X依赖于Y并不表示Y也依赖于X。但如果X和Y同时依赖于对方，这种依赖性被称为循环依赖。这时，X无法和Y分开单独使用，反之亦然。如果在一个面向对象程序中拥有太多的循环依赖，这可能表示这个程序是欠佳的设计。</p>
+
+<h3>如何实现控制反转</h3>
+
+<ul>
+<li>使用工厂模式</li>
+<li>使用服务定位模式</li>
+<li>使用依赖注入
+
+<ul>
+<li>基于构造函数</li>
+<li>基于参数</li>
+<li>基于setter</li>
+<li>基于接口</li>
+</ul>
+</li>
+<li>通过上下文查找依赖：容器提供回调接口和上下文环境给组件（EJB，Apache Avalon等），经常融合了服务定位模式。</li>
+</ul>
+
+
+<h2>什么是依赖注入</h2>
+
+<p>比如某个网站需要实现通知功能的功能，实例代码如下:</p>
+
+<pre><code>&lt;?php
+
+class NotifyService
+{
+    public function notify();
+}
+
+class User
+{
+    // 发送通知信息
+    public function ntofiy()
+    {
+        // ... 省略处理逻辑
+        $notifyService = new NotifyService();
+        $notifyService-&gt;notify();
+        // ...
+    }
+}
+</code></pre>
+
+<p>上面的代码中，耦合了通知的特定实现，必须要知道是何种通知形式，比如说邮件通知或者短信等等。如何从上面的代码从解耦出这一依赖呢？很明显，大家都会想到提取接口。</p>
+
+<pre><code>&lt;?php
+
+interface INotifyService
+{
+    abstract public function notify();
+}
+
+class EmailNotifyService implements INotifyService
+{
+    public function notify()
+    {
+        // 通过邮件发送
+    }
+}
+
+class SMSNotifyService implements INotifyService
+{
+    public function notify()
+    {
+        // 通过发短信
+    }
+}
+</code></pre>
+
+<p>通过上面这段代码，可以扩展出不同的通知类型，比如新增一个站内信的通知类型，只需要简单的继承INotifyService这个接口，实现notify方法就可以了。</p>
+
+<p>那么如何让用户反转对通知形式的依赖呢？</p>
+
+<p>通过构造器：</p>
+
+<pre><code>&lt;?php
+
+class User
+{
+    private $_notifyService;
+
+    public function __construct(INotifyService $notifyService)
+    {
+        $this-&gt;_notifyService = $notifyService;
+    }
+}
+</code></pre>
+
+<p>通过setter：</p>
+
+<pre><code>&lt;?php
+
+class User
+{
+    private $_notifyService;
+
+    public function setNotifyService(INotifyService $notifyService)
+    {
+        $this-&gt;_notifyService = $notifyService;
+    }
+}
+</code></pre>
+
+<p>通过上面的代码的改动，我们可以在User的notify方法中简单的使用<code>$this-&gt;_notifyService-&gt;notify()</code>。</p>
+
+<p>将选择抽象实现的职责一道服务消费者类的外部，拓展成Service Locator模式：<br/>
+这里简单的使用了<a href="https://github.com/fabpot/Pimple">Pimple库</a>作为一个Service Container。</p>
+
+<pre><code>&lt;?php
+
+$serviceContainer = new Pimple();
+
+$serviceContainer['email-notify'] = function ($c) {
+    $emailNotifyService = new EmailNotifyService();
+    // ......
+    return $emailNotifyService;
+};
+
+$serviceContainer['sms-notfiy'] = function ($c) {
+    $smsNofiyService = new SMSNotifyService();
+    // ......
+    return $smsNofiyService;
+}
+
+
+class User
+{
+    private $_serviceContainer;
+
+    public function __construct($serviceContainer)
+    {
+        $this-&gt;_serviceContainer = $serviceContainer;
+    }
+
+    public function notify()
+    {
+        $this-&gt;_serviceContainer['email-notify']-&gt;notify();
+    }
+}
+
+$user = new User($serviceContainer);
+$user-&gt;notify();
+</code></pre>
+
+<p>举例不恰当，User类破坏了<a href="http://zh.wikipedia.org/wiki/%E5%BC%80%E9%97%AD%E5%8E%9F%E5%88%99">OCP原则（开闭原则）</a>，即对扩展开放，对修改封闭。</p>
+
+<p>依赖注入是这样一个过程：客户类只依赖于服务类的一个接口，而不依赖于具体服务类，所以客户类只定义一个注入点。在程序运行过程中，客户类不直接实例化具体服务类示例，而是客户类的运行上下文环境或专门组件负责实例化服务类，然后将其注入到客户类中，保证客户类的正常运行。</p>
+
+<p>想了解更多，继续看下面的资料：</p>
+
+<ul>
+<li><a href="http://en.wikipedia.org/wiki/Inversion_of_control">Wiki IoC</a></li>
+<li><a href="http://zh.wikipedia.org/wiki/%E6%8E%A7%E5%88%B6%E5%8F%8D%E8%BD%AC">Wiki IoC中文</a></li>
+<li><a href="http://www.objectmentor.com/resources/articles/dip.pdf">The Dependency Inversion Principle</a></li>
+<li><a href="http://symfony.com/doc/current/components/dependency_injection/introduction.html#basic-usage">Symfony Dependency Injection Component</a></li>
+<li><a href="https://github.com/fabpot/Pimple">Pimple is a small Dependency Injection Container for PHP 5.3</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>

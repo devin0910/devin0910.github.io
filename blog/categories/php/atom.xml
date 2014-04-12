@@ -1,0 +1,536 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: PHP | My Octopress Blog]]></title>
+  <link href="http://devin0910.github.io/blog/categories/php/atom.xml" rel="self"/>
+  <link href="http://devin0910.github.io/"/>
+  <updated>2014-04-13T02:25:56+08:00</updated>
+  <id>http://devin0910.github.io/</id>
+  <author>
+    <name><![CDATA[Your Name]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[使用PHP引用来生成树结构]]></title>
+    <link href="http://devin0910.github.io/blog/2013/07/23/building-tree-structures-in-php-using-references/"/>
+    <updated>2013-07-23T20:06:00+08:00</updated>
+    <id>http://devin0910.github.io/blog/2013/07/23/building-tree-structures-in-php-using-references</id>
+    <content type="html"><![CDATA[<p>其实经常会遇到生成树结构的情况，比如多级菜单，用户的评论等。当然可以较复杂的SQL来实现树结构，但是如果在PHP中实这一功能可以很大地缓解数据库压力。</p>
+
+<pre><code>&lt;?php
+
+function buildTree(array $dataset)
+{
+    $tree = array();
+
+    $references = array();
+    foreach ($dataset as $id =&gt; &amp;$node) {
+        $references[$node['id']] = &amp;$node;
+
+        $node['children'] = array();
+
+        if (is_null($node['parentId'])) {
+            $tree[$node['id']] = &amp;$node;
+        } else {
+            $references[$node['parentId']]['children'][$node['id']] = &amp;$node;
+        }
+    }
+
+    return $tree;
+}
+
+$data = array(
+        array('id' =&gt; 1, 'parentId' =&gt; null, 'data' =&gt; 1),
+        array('id' =&gt; 2, 'parentId' =&gt; 1, 'data' =&gt; 2),
+        array('id' =&gt; 3, 'parentId' =&gt; 1, 'data' =&gt; 3),
+        array('id' =&gt; 4, 'parentId' =&gt; 1, 'data' =&gt; 4),
+        array('id' =&gt; 5, 'parentId' =&gt; null, 'data' =&gt; 5),
+        array('id' =&gt; 6, 'parentId' =&gt; 5, 'data' =&gt; 6),
+        array('id' =&gt; 7, 'parentId' =&gt; 4, 'data' =&gt; 7),
+);
+
+print_r(buildTree($data));
+</code></pre>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[生成器：PHP5.5中的新特性]]></title>
+    <link href="http://devin0910.github.io/blog/2013/07/19/generator-new-feature-in-php/"/>
+    <updated>2013-07-19T20:00:00+08:00</updated>
+    <id>http://devin0910.github.io/blog/2013/07/19/generator-new-feature-in-php</id>
+    <content type="html"><![CDATA[<p>为什么要引入Generator呢？根据php文档中介绍：</p>
+
+<blockquote><p>Generators provide an easy way to implement simple iterators without the overhead or complexity of
+implementing a class that implements the Iterator interface.</p></blockquote>
+
+<p>也就是说我们可以使用Generator来简单地实现迭代，而不需要实现Iterator接口。Generator能让我们在使用<code>foreach</code>遍历数据集时不需要在内存中先分配该数据集的内存。比如说我们在使用<code>range(0, 1000000)</code>会消耗100多MB，但是使用Generator的话，只需要不到1K的空间。那我们来看看PHP官网上实现Generator版的<code>xrange</code>吧！</p>
+
+<pre><code>&lt;?php
+
+function xrange($start, $limit, $step = 1)
+{
+    if ($start &lt; $limit) {
+        if ($step &lt;= 0) {
+            throw new LogicException('Step must be +ve');
+        }
+
+        for ($i = $start; $i &lt;= $limit $i += $step) {
+            yield $i;
+        }
+    } else {
+        if ($step &gt;= 0) {
+            throw new LogicException('Step must be -ve');
+        }
+
+        for ($i = $start; $i &gt;= $limit; $i += $step) {
+            yield $i;
+        }
+    }
+}
+
+foreach (xrange(0, 1000000) as $number) {
+    echo $number;
+}
+</code></pre>
+
+<p>乍看上面的<code>xrange</code>返回值为null，其实它返回的是一个<a href="http://www.php.net/manual/zh/class.generator.php">Generator类</a>的一个实例，该类实现了Iterator接口。也就是说，当我们在foreach中调用<code>xrange</code>的时候，PHP会执行函数内的代码，当第一次遇到yield的时候，会返回这个Generator实例，并且记住该状态。当调用这个Generator实例的next()方法时，PHP又会重新从上面记住的状态执行代码，循环执行上面的过程，直到遍历结束。</p>
+
+<p>值得注意的是上面所提到的Generator类除了实现Iterator接口外还有另外一个很有趣的方法：<code>send($value)</code>。文档上说，该方法传递给生成器的值<code>$value</code>可以作为<code>yield</code>表达式的结果，然后恢复执行这个生成器。</p>
+
+<pre><code>&lt;?php
+
+function printer()
+{
+    while (true) {
+        $string = yield;
+        echo $string;
+    }
+}
+
+$printer = printer();
+$printer-&gt;send('Hello world!');
+
+--output:
+'Hello world!'
+</code></pre>
+
+<p>参考：</p>
+
+<ol>
+<li><a href="http://www.php.net/manual/zh/language.generators.overview.php">PHP 文档</a></li>
+<li><a href="http://blog.ircmaxell.com/2012/07/what-generators-can-do-for-you.html">What Generators Can Do For You</a></li>
+</ol>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[关于PHP5.5中的新函数array_column]]></title>
+    <link href="http://devin0910.github.io/blog/2013/07/15/new-function-array-column-in-php-5-dot-5/"/>
+    <updated>2013-07-15T17:00:00+08:00</updated>
+    <id>http://devin0910.github.io/blog/2013/07/15/new-function-array-column-in-php-5-dot-5</id>
+    <content type="html"><![CDATA[<p>在PHP5.5中有一个新的函数：<a href="http://us2.php.net/manual/zh/function.array-column.php">array_column</a>，该函数可以从数组中返回某一列，类似于PDOStatement::fetchColumn，可以查看关于该函数的<a href="https://wiki.php.net/rfc/array_column">rfc</a>。</p>
+
+<p>该函数的方法签名为<code>array array_column ( array $input , mixed $column_key [, mixed $index_key ] )</code>，可以通过$column_key来指定返回$input的哪一列，如果你指定了$index_key，那该列的值作为返回的数据的索引。</p>
+
+<p>下面是从PHP官网的示例：</p>
+
+<pre><code>&lt;?php
+// Array representing a possible record set returned from a database
+$records = array(
+    array(
+        'id' =&gt; 2135,
+        'first_name' =&gt; 'John',
+        'last_name' =&gt; 'Doe',
+    ),
+    array(
+        'id' =&gt; 3245,
+        'first_name' =&gt; 'Sally',
+        'last_name' =&gt; 'Smith',
+    ),
+    array(
+        'id' =&gt; 5342,
+        'first_name' =&gt; 'Jane',
+        'last_name' =&gt; 'Jones',
+    ),
+    array(
+        'id' =&gt; 5623,
+        'first_name' =&gt; 'Peter',
+        'last_name' =&gt; 'Doe',
+    )
+);
+
+$first_names = array_column($records, 'first_name');
+print_r($first_names);
+?&gt;
+
+--输出：
+Array
+(
+    [0] =&gt; John
+    [1] =&gt; Sally
+    [2] =&gt; Jane
+    [3] =&gt; Peter
+)
+</code></pre>
+
+<p>指定返回数据的索引列：</p>
+
+<pre><code>&lt;?php
+// Using the $records array from Example #1
+$last_names = array_column($records, 'last_name', 'id');
+print_r($last_names);
+?&gt;
+
+--输出：
+Array
+(
+    [2135] =&gt; Doe
+    [3245] =&gt; Smith
+    [5342] =&gt; Jones
+    [5623] =&gt; Doe
+)
+</code></pre>
+
+<p>如何在低版本的PHP中实现该功能呢？你可以使用<a href="https://github.com/ramsey/array_column/blob/master/src/array_column.php">这段代码</a>，也可以通过composer来安装：<code>"rhumsaa/array_column": "~1.1"</code>。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[介绍SPL-迭代器篇]]></title>
+    <link href="http://devin0910.github.io/blog/2013/07/11/introduce-to-spl/"/>
+    <updated>2013-07-11T11:49:00+08:00</updated>
+    <id>http://devin0910.github.io/blog/2013/07/11/introduce-to-spl</id>
+    <content type="html"><![CDATA[<h2>什么SPL</h2>
+
+<p>SPL是Standard PHP Library的简称。在php文档中，关于SPL的介绍是：</p>
+
+<blockquote><p>SPL是用于解决典型问题(standard problems)的一组接口与类的集合。</p></blockquote>
+
+<p>下面这段代码可以查看所有SPL类：</p>
+
+<pre><code>&lt;?php
+
+foreach (spl_classes() as $key =&gt; $value) {
+    echo $key . ' -&gt; ' . $value . PHP_EOL;
+}  
+</code></pre>
+
+<ol>
+<li>SPL的迭代器目标是为php提供一些可以实现高效数据访问的接口和类，功能上来说是被设计成遍历集合结构（可以是数组，数据库结果集，xml，目录等等）；</li>
+<li>数据结构：双向链表，堆、栈、队列等；</li>
+<li>接口：Countable，OuterIterator，RecursiveIterator，SeekableIterator等；</li>
+<li>异常：BadFuctionCallException， LogicException， RuntimeException等；</li>
+<li>SPL函数：比如用于自动加载的spl_autoload_register, 返回指定对象的hash id：spl_object_hash等；</li>
+<li>文件处理：关于某个文件信息的SplFileInfo类，关于某个文件的SplFileObject类等；</li>
+<li>各种类及接口：数组对象ArrayObject，可用于实现观察者模式的SplObserver和SplSubject。</li>
+</ol>
+
+
+<p>如果想要了解更多，可以查看<a href="http://www.php.net/manual/en/book.spl.php">SPL</a></p>
+
+<h2>什么是迭代器</h2>
+
+<p>在php文档中的描述是：</p>
+
+<blockquote><p>可在内部迭代自己的外部迭代器或类的接口。</p></blockquote>
+
+<h3>Traversable（遍历）接口</h3>
+
+<p>检测一个类是否可以使用foreach进行遍历的接口。无法被单独实现的基本抽象接口，相反它必须由IteratorAggregate或Iterator接口实现。</p>
+
+<p>Note:
+&ndash; 实现此接口的内建类可以使用foreach进行遍历而无需实现IteratorAggregate或Iterator接口。
+&ndash; 这是一个无法在PHP脚本中实现的内部引擎接口。IteratorAggregate或Iterator接口可以用来代替它。</p>
+
+<pre><code>Traversable {}  
+</code></pre>
+
+<p>这个接口没有任何方法，它的作用仅仅是作为所有可遍历类的基本接口。
+比如你想使用foreach遍历某个对象，但你不能确定该对象是否是数组，或者是否已经实现IteratorAggregate、Iterator、Traversable接口，你可以使用下面的代码段来检测：</p>
+
+<pre><code>&lt;?php
+
+if (!is_array($items) &amp;&amp; !$items instanceof Traversable) {
+    // Throw exception here
+}  
+</code></pre>
+
+<h3>Iterator（迭代器）接口</h3>
+
+<p>所有的迭代器都有标准的接口。</p>
+
+<pre><code>&lt;?php
+
+Iterator extends Traversable
+{
+    abstract public mixed current(void); // 返回当前元素
+    abstract public scalar key(void);    // 返回当前元素的键
+    abstract public void next(void);     // 向前移动到下一个元素
+    abstract public void rewind(void);   // 返回到迭代器的第一个元素
+    abstract public boolean valid(void); // 检查当前位置是否有效
+}  
+</code></pre>
+
+<p>下面是一些PHP提供的一些用于日常任务的迭代器：</p>
+
+<ul>
+<li>ArrayIterator
+
+<ul>
+<li>RecursiveArrayIterator</li>
+</ul>
+</li>
+<li>EmptyIterator</li>
+<li>IteratorIterator
+
+<ul>
+<li>AppendIterator</li>
+<li>CachingIterator
+
+<ul>
+<li>RecursiveCachingIterator</li>
+</ul>
+</li>
+<li>FileIterator
+
+<ul>
+<li>CallbackFilterIterator
+
+<ul>
+<li>RecursiveCallbackFilterIterator</li>
+</ul>
+</li>
+<li>RecursiveFilterIterator
+
+<ul>
+<li>ParentIterator</li>
+</ul>
+</li>
+<li>RegexIterator
+
+<ul>
+<li>RecursiveRegexIterator</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>InfiniteIterator</li>
+<li>LimitIterator</li>
+<li>NoRewindIterator</li>
+</ul>
+</li>
+<li>MultipleIterator</li>
+<li>RecursiveIteratorIterator
+
+<ul>
+<li>RecursiveTreeIterator</li>
+</ul>
+</li>
+<li>DirecotyIterator (extends SplFileInfo)
+
+<ul>
+<li>FileSystemIterator
+
+<ul>
+<li>GlobalIterator</li>
+<li>RecursiveDirectoryIterator</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+<p>下面是来自php文档中关于迭代器的一个示例：</p>
+
+<pre><code>&lt;?php
+
+class CustomIterator implements Iterator
+{
+    private $position = 0;
+    private $array = array(
+        "firstelement",
+        "secondelement",
+        "lastelement",
+    );  
+
+    public function __construct() {
+        $this-&gt;position = 0;
+    }
+
+    function rewind() {
+        var_dump(__METHOD__);
+        $this-&gt;position = 0;
+    }
+
+    function current() {
+        var_dump(__METHOD__);
+        return $this-&gt;array[$this-&gt;position];
+    }
+
+    function key() {
+        var_dump(__METHOD__);
+        return $this-&gt;position;
+    }
+
+    function next() {
+        var_dump(__METHOD__);
+        ++$this-&gt;position;
+    }
+
+    function valid() {
+        var_dump(__METHOD__);
+        return isset($this-&gt;array[$this-&gt;position]);
+    }
+}
+
+$it = new CustomIterator;
+foreach($it as $key =&gt; $value) {
+    var_dump($key, $value);
+    echo "\n";
+}
+</code></pre>
+
+<p>以上例子的输出类似于：</p>
+
+<pre><code>string(18) "myIterator::rewind"
+string(17) "myIterator::valid"
+string(19) "myIterator::current"
+string(15) "myIterator::key"
+int(0)
+string(12) "firstelement"
+
+string(16) "myIterator::next"
+string(17) "myIterator::valid"
+string(19) "myIterator::current"
+string(15) "myIterator::key"
+int(1)
+string(13) "secondelement"
+
+string(16) "myIterator::next"
+string(17) "myIterator::valid"
+string(19) "myIterator::current"
+string(15) "myIterator::key"
+int(2)
+string(11) "lastelement"
+
+string(16) "myIterator::next"
+string(17) "myIterator::valid"
+</code></pre>
+
+<h3>IteratorAggregate（聚合式迭代器）接口</h3>
+
+<p>创建外部迭代器的接口。</p>
+
+<pre><code>&lt;?php
+
+IteratorAggregate extends Traversable 
+{
+    abstract public Traversable getIterator (void); // 获取一个外部迭代器
+}
+</code></pre>
+
+<p>下面是来自php文档中关于聚合式迭代器的一个示例：</p>
+
+<pre><code>&lt;?php
+
+class myData implements IteratorAggregate {
+    public $property1 = "Public property one";
+    public $property2 = "Public property two";
+    public $property3 = "Public property three";
+
+    public function __construct() {
+        $this-&gt;property4 = "last property";
+    }
+
+    public function getIterator() {
+        return new ArrayIterator($this);
+    }
+}
+
+$obj = new myData;
+
+foreach($obj as $key =&gt; $value) {
+    var_dump($key, $value);
+    echo "\n";
+}
+</code></pre>
+
+<p>以上例子的输出类似于：</p>
+
+<pre><code>string(9) "property1"
+string(19) "Public property one"
+
+string(9) "property2"
+string(19) "Public property two"
+
+string(9) "property3"
+string(21) "Public property three"
+
+string(9) "property4"
+string(13) "last property"
+</code></pre>
+
+<h3>在迭代器上使用回调函数</h3>
+
+<p>首先我们来看下面两个例子：<br/>
+现在有个数组<code>['dingo', 'wombat', 'wallaby']</code>，想输出每个单词的首字母大写，即<code>['Dingo', 'Wombat', 'Wallaby']</code>，下面是通过<code>array_walk</code>函数来实现的：</p>
+
+<pre><code>&lt;?php
+
+$array = array('dingo', 'wombat', 'wallaby');
+
+array_walk($array, function ($item) {
+    echo ucfirst($item) . PHP_EOL;
+});
+</code></pre>
+
+<p>那从前面的介绍来看，迭代器也具有遍历对象的功能，那怎样来实现类似上面功能呢：PHP中有个函数<code>int iterator_apply(Traversable $iterator, callable $function [, array $args])</code> 为迭代器中每个元素调用一个用户自定义函数，接下来看代码吧：</p>
+
+<pre><code>&lt;?php
+
+$array = array('dingo', 'wombat', 'wallaby');
+
+function addCaps(Iterator $it)
+{
+    echo ucfirst($it-&gt;current()) . PHP_EOL;
+    return true;
+}
+
+try {
+    $it = new ArrayIterator($array);
+    iterator_apply($it, 'addCaps', array($it));
+} catch (Exception $e) {
+    echo $e-&gt;getMessage();
+}  
+</code></pre>
+
+<p>在这里需要注意：为了遍历iterator，回调函数addCaps必须返回true，否则，只会输出第一个元素（可以自行测试）</p>
+
+<p>如果需要了解更多关于迭代器方面的资料，可以查看下面引用的第二个链接。</p>
+
+<p>参考：</p>
+
+<ol>
+<li><a href="http://www.php.net/manual/en/book.spl.php">PHP官方手册</a></li>
+<li><a href="http://www.phpro.org/tutorials/Introduction-to-SPL.html">Introduction to SPL</a></li>
+</ol>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[细说PHP中的平行处理]]></title>
+    <link href="http://devin0910.github.io/blog/2013/07/10/parallel-processing-in-php/"/>
+    <updated>2013-07-10T16:40:00+08:00</updated>
+    <id>http://devin0910.github.io/blog/2013/07/10/parallel-processing-in-php</id>
+    <content type="html"><![CDATA[
+]]></content>
+  </entry>
+  
+</feed>

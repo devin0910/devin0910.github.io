@@ -1,0 +1,282 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>生成器：PHP5.5中的新特性 - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="为什么要引入Generator呢？根据php文档中介绍： Generators provide an easy way to implement simple iterators without the overhead or complexity of
+implementing a class &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://devin0910.github.io/blog/2013/07/19/generator-new-feature-in-php">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:devin0910.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">生成器：PHP5.5中的新特性</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-07-19T20:00:00+08:00" pubdate data-updated="true">Jul 19<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>为什么要引入Generator呢？根据php文档中介绍：</p>
+
+<blockquote><p>Generators provide an easy way to implement simple iterators without the overhead or complexity of
+implementing a class that implements the Iterator interface.</p></blockquote>
+
+<p>也就是说我们可以使用Generator来简单地实现迭代，而不需要实现Iterator接口。Generator能让我们在使用<code>foreach</code>遍历数据集时不需要在内存中先分配该数据集的内存。比如说我们在使用<code>range(0, 1000000)</code>会消耗100多MB，但是使用Generator的话，只需要不到1K的空间。那我们来看看PHP官网上实现Generator版的<code>xrange</code>吧！</p>
+
+<pre><code>&lt;?php
+
+function xrange($start, $limit, $step = 1)
+{
+    if ($start &lt; $limit) {
+        if ($step &lt;= 0) {
+            throw new LogicException('Step must be +ve');
+        }
+
+        for ($i = $start; $i &lt;= $limit $i += $step) {
+            yield $i;
+        }
+    } else {
+        if ($step &gt;= 0) {
+            throw new LogicException('Step must be -ve');
+        }
+
+        for ($i = $start; $i &gt;= $limit; $i += $step) {
+            yield $i;
+        }
+    }
+}
+
+foreach (xrange(0, 1000000) as $number) {
+    echo $number;
+}
+</code></pre>
+
+<p>乍看上面的<code>xrange</code>返回值为null，其实它返回的是一个<a href="http://www.php.net/manual/zh/class.generator.php">Generator类</a>的一个实例，该类实现了Iterator接口。也就是说，当我们在foreach中调用<code>xrange</code>的时候，PHP会执行函数内的代码，当第一次遇到yield的时候，会返回这个Generator实例，并且记住该状态。当调用这个Generator实例的next()方法时，PHP又会重新从上面记住的状态执行代码，循环执行上面的过程，直到遍历结束。</p>
+
+<p>值得注意的是上面所提到的Generator类除了实现Iterator接口外还有另外一个很有趣的方法：<code>send($value)</code>。文档上说，该方法传递给生成器的值<code>$value</code>可以作为<code>yield</code>表达式的结果，然后恢复执行这个生成器。</p>
+
+<pre><code>&lt;?php
+
+function printer()
+{
+    while (true) {
+        $string = yield;
+        echo $string;
+    }
+}
+
+$printer = printer();
+$printer-&gt;send('Hello world!');
+
+--output:
+'Hello world!'
+</code></pre>
+
+<p>参考：</p>
+
+<ol>
+<li><a href="http://www.php.net/manual/zh/language.generators.overview.php">PHP 文档</a></li>
+<li><a href="http://blog.ircmaxell.com/2012/07/what-generators-can-do-for-you.html">What Generators Can Do For You</a></li>
+</ol>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-07-19T20:00:00+08:00" pubdate data-updated="true">Jul 19<span>th</span>, 2013</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/php/'>PHP</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://devin0910.github.io/blog/2013/07/19/generator-new-feature-in-php/" data-via="" data-counturl="http://devin0910.github.io/blog/2013/07/19/generator-new-feature-in-php/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/07/16/inversion-of-control-and-dependency-injecton/" title="Previous Post: 控制反转(IoC)与依赖注入(DI)">&laquo; 控制反转(IoC)与依赖注入(DI)</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/07/23/building-tree-structures-in-php-using-references/" title="Next Post: 使用PHP引用来生成树结构">使用PHP引用来生成树结构 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/09/13/a-new-way-to-set-up-develop-enviroment-using-vagrant/">Vagrant：快速搭建Linux开发环境</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/08/12/creating-permissions-using-bitwise-operators/">使用位运算实现权限管理</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/08/02/setting-up-existing-octopress-blog-on-a-new-computer/">怎样在新的环境中配置原有的Octopress博客</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/23/building-tree-structures-in-php-using-references/">使用PHP引用来生成树结构</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/19/generator-new-feature-in-php/">生成器：PHP5.5中的新特性</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: 
+
+Sitemap: http://devin0910.github.io/sitemap.xml 

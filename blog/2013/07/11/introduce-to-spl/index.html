@@ -1,0 +1,534 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>介绍SPL-迭代器篇 - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="什么SPL SPL是Standard PHP Library的简称。在php文档中，关于SPL的介绍是： SPL是用于解决典型问题(standard problems)的一组接口与类的集合。 下面这段代码可以查看所有SPL类： &lt;?php foreach (spl_classes() as &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://devin0910.github.io/blog/2013/07/11/introduce-to-spl">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:devin0910.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">介绍SPL-迭代器篇</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-07-11T11:49:00+08:00" pubdate data-updated="true">Jul 11<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h2>什么SPL</h2>
+
+<p>SPL是Standard PHP Library的简称。在php文档中，关于SPL的介绍是：</p>
+
+<blockquote><p>SPL是用于解决典型问题(standard problems)的一组接口与类的集合。</p></blockquote>
+
+<p>下面这段代码可以查看所有SPL类：</p>
+
+<pre><code>&lt;?php
+
+foreach (spl_classes() as $key =&gt; $value) {
+    echo $key . ' -&gt; ' . $value . PHP_EOL;
+}  
+</code></pre>
+
+<ol>
+<li>SPL的迭代器目标是为php提供一些可以实现高效数据访问的接口和类，功能上来说是被设计成遍历集合结构（可以是数组，数据库结果集，xml，目录等等）；</li>
+<li>数据结构：双向链表，堆、栈、队列等；</li>
+<li>接口：Countable，OuterIterator，RecursiveIterator，SeekableIterator等；</li>
+<li>异常：BadFuctionCallException， LogicException， RuntimeException等；</li>
+<li>SPL函数：比如用于自动加载的spl_autoload_register, 返回指定对象的hash id：spl_object_hash等；</li>
+<li>文件处理：关于某个文件信息的SplFileInfo类，关于某个文件的SplFileObject类等；</li>
+<li>各种类及接口：数组对象ArrayObject，可用于实现观察者模式的SplObserver和SplSubject。</li>
+</ol>
+
+
+<p>如果想要了解更多，可以查看<a href="http://www.php.net/manual/en/book.spl.php">SPL</a></p>
+
+<h2>什么是迭代器</h2>
+
+<p>在php文档中的描述是：</p>
+
+<blockquote><p>可在内部迭代自己的外部迭代器或类的接口。</p></blockquote>
+
+<h3>Traversable（遍历）接口</h3>
+
+<p>检测一个类是否可以使用foreach进行遍历的接口。无法被单独实现的基本抽象接口，相反它必须由IteratorAggregate或Iterator接口实现。</p>
+
+<p>Note:
+&ndash; 实现此接口的内建类可以使用foreach进行遍历而无需实现IteratorAggregate或Iterator接口。
+&ndash; 这是一个无法在PHP脚本中实现的内部引擎接口。IteratorAggregate或Iterator接口可以用来代替它。</p>
+
+<pre><code>Traversable {}  
+</code></pre>
+
+<p>这个接口没有任何方法，它的作用仅仅是作为所有可遍历类的基本接口。
+比如你想使用foreach遍历某个对象，但你不能确定该对象是否是数组，或者是否已经实现IteratorAggregate、Iterator、Traversable接口，你可以使用下面的代码段来检测：</p>
+
+<pre><code>&lt;?php
+
+if (!is_array($items) &amp;&amp; !$items instanceof Traversable) {
+    // Throw exception here
+}  
+</code></pre>
+
+<h3>Iterator（迭代器）接口</h3>
+
+<p>所有的迭代器都有标准的接口。</p>
+
+<pre><code>&lt;?php
+
+Iterator extends Traversable
+{
+    abstract public mixed current(void); // 返回当前元素
+    abstract public scalar key(void);    // 返回当前元素的键
+    abstract public void next(void);     // 向前移动到下一个元素
+    abstract public void rewind(void);   // 返回到迭代器的第一个元素
+    abstract public boolean valid(void); // 检查当前位置是否有效
+}  
+</code></pre>
+
+<p>下面是一些PHP提供的一些用于日常任务的迭代器：</p>
+
+<ul>
+<li>ArrayIterator
+
+<ul>
+<li>RecursiveArrayIterator</li>
+</ul>
+</li>
+<li>EmptyIterator</li>
+<li>IteratorIterator
+
+<ul>
+<li>AppendIterator</li>
+<li>CachingIterator
+
+<ul>
+<li>RecursiveCachingIterator</li>
+</ul>
+</li>
+<li>FileIterator
+
+<ul>
+<li>CallbackFilterIterator
+
+<ul>
+<li>RecursiveCallbackFilterIterator</li>
+</ul>
+</li>
+<li>RecursiveFilterIterator
+
+<ul>
+<li>ParentIterator</li>
+</ul>
+</li>
+<li>RegexIterator
+
+<ul>
+<li>RecursiveRegexIterator</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>InfiniteIterator</li>
+<li>LimitIterator</li>
+<li>NoRewindIterator</li>
+</ul>
+</li>
+<li>MultipleIterator</li>
+<li>RecursiveIteratorIterator
+
+<ul>
+<li>RecursiveTreeIterator</li>
+</ul>
+</li>
+<li>DirecotyIterator (extends SplFileInfo)
+
+<ul>
+<li>FileSystemIterator
+
+<ul>
+<li>GlobalIterator</li>
+<li>RecursiveDirectoryIterator</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+<p>下面是来自php文档中关于迭代器的一个示例：</p>
+
+<pre><code>&lt;?php
+
+class CustomIterator implements Iterator
+{
+    private $position = 0;
+    private $array = array(
+        "firstelement",
+        "secondelement",
+        "lastelement",
+    );  
+
+    public function __construct() {
+        $this-&gt;position = 0;
+    }
+
+    function rewind() {
+        var_dump(__METHOD__);
+        $this-&gt;position = 0;
+    }
+
+    function current() {
+        var_dump(__METHOD__);
+        return $this-&gt;array[$this-&gt;position];
+    }
+
+    function key() {
+        var_dump(__METHOD__);
+        return $this-&gt;position;
+    }
+
+    function next() {
+        var_dump(__METHOD__);
+        ++$this-&gt;position;
+    }
+
+    function valid() {
+        var_dump(__METHOD__);
+        return isset($this-&gt;array[$this-&gt;position]);
+    }
+}
+
+$it = new CustomIterator;
+foreach($it as $key =&gt; $value) {
+    var_dump($key, $value);
+    echo "\n";
+}
+</code></pre>
+
+<p>以上例子的输出类似于：</p>
+
+<pre><code>string(18) "myIterator::rewind"
+string(17) "myIterator::valid"
+string(19) "myIterator::current"
+string(15) "myIterator::key"
+int(0)
+string(12) "firstelement"
+
+string(16) "myIterator::next"
+string(17) "myIterator::valid"
+string(19) "myIterator::current"
+string(15) "myIterator::key"
+int(1)
+string(13) "secondelement"
+
+string(16) "myIterator::next"
+string(17) "myIterator::valid"
+string(19) "myIterator::current"
+string(15) "myIterator::key"
+int(2)
+string(11) "lastelement"
+
+string(16) "myIterator::next"
+string(17) "myIterator::valid"
+</code></pre>
+
+<h3>IteratorAggregate（聚合式迭代器）接口</h3>
+
+<p>创建外部迭代器的接口。</p>
+
+<pre><code>&lt;?php
+
+IteratorAggregate extends Traversable 
+{
+    abstract public Traversable getIterator (void); // 获取一个外部迭代器
+}
+</code></pre>
+
+<p>下面是来自php文档中关于聚合式迭代器的一个示例：</p>
+
+<pre><code>&lt;?php
+
+class myData implements IteratorAggregate {
+    public $property1 = "Public property one";
+    public $property2 = "Public property two";
+    public $property3 = "Public property three";
+
+    public function __construct() {
+        $this-&gt;property4 = "last property";
+    }
+
+    public function getIterator() {
+        return new ArrayIterator($this);
+    }
+}
+
+$obj = new myData;
+
+foreach($obj as $key =&gt; $value) {
+    var_dump($key, $value);
+    echo "\n";
+}
+</code></pre>
+
+<p>以上例子的输出类似于：</p>
+
+<pre><code>string(9) "property1"
+string(19) "Public property one"
+
+string(9) "property2"
+string(19) "Public property two"
+
+string(9) "property3"
+string(21) "Public property three"
+
+string(9) "property4"
+string(13) "last property"
+</code></pre>
+
+<h3>在迭代器上使用回调函数</h3>
+
+<p>首先我们来看下面两个例子：<br/>
+现在有个数组<code>['dingo', 'wombat', 'wallaby']</code>，想输出每个单词的首字母大写，即<code>['Dingo', 'Wombat', 'Wallaby']</code>，下面是通过<code>array_walk</code>函数来实现的：</p>
+
+<pre><code>&lt;?php
+
+$array = array('dingo', 'wombat', 'wallaby');
+
+array_walk($array, function ($item) {
+    echo ucfirst($item) . PHP_EOL;
+});
+</code></pre>
+
+<p>那从前面的介绍来看，迭代器也具有遍历对象的功能，那怎样来实现类似上面功能呢：PHP中有个函数<code>int iterator_apply(Traversable $iterator, callable $function [, array $args])</code> 为迭代器中每个元素调用一个用户自定义函数，接下来看代码吧：</p>
+
+<pre><code>&lt;?php
+
+$array = array('dingo', 'wombat', 'wallaby');
+
+function addCaps(Iterator $it)
+{
+    echo ucfirst($it-&gt;current()) . PHP_EOL;
+    return true;
+}
+
+try {
+    $it = new ArrayIterator($array);
+    iterator_apply($it, 'addCaps', array($it));
+} catch (Exception $e) {
+    echo $e-&gt;getMessage();
+}  
+</code></pre>
+
+<p>在这里需要注意：为了遍历iterator，回调函数addCaps必须返回true，否则，只会输出第一个元素（可以自行测试）</p>
+
+<p>如果需要了解更多关于迭代器方面的资料，可以查看下面引用的第二个链接。</p>
+
+<p>参考：</p>
+
+<ol>
+<li><a href="http://www.php.net/manual/en/book.spl.php">PHP官方手册</a></li>
+<li><a href="http://www.phpro.org/tutorials/Introduction-to-SPL.html">Introduction to SPL</a></li>
+</ol>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-07-11T11:49:00+08:00" pubdate data-updated="true">Jul 11<span>th</span>, 2013</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/php/'>PHP</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://devin0910.github.io/blog/2013/07/11/introduce-to-spl/" data-via="" data-counturl="http://devin0910.github.io/blog/2013/07/11/introduce-to-spl/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/07/10/parallel-processing-in-php/" title="Previous Post: 细说PHP中的平行处理">&laquo; 细说PHP中的平行处理</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/07/12/a-brief-introduction-to-curl/" title="Next Post: cURL的一些妙用">cURL的一些妙用 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/09/13/a-new-way-to-set-up-develop-enviroment-using-vagrant/">Vagrant：快速搭建Linux开发环境</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/08/12/creating-permissions-using-bitwise-operators/">使用位运算实现权限管理</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/08/02/setting-up-existing-octopress-blog-on-a-new-computer/">怎样在新的环境中配置原有的Octopress博客</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/23/building-tree-structures-in-php-using-references/">使用PHP引用来生成树结构</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/19/generator-new-feature-in-php/">生成器：PHP5.5中的新特性</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

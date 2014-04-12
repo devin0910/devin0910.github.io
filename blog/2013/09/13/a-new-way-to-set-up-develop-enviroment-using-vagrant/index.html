@@ -1,0 +1,243 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Vagrant：快速搭建Linux开发环境 - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="关于Vagrant Vagrant是一个基于Ruby的工具，用于创建和部署虚拟化开发环境。它使用Oracle的开源Virtualbox虚拟化系统，使用Chef、Puppet创建自动化虚拟环境。使用虚拟化环境来模拟跟生产环境一样的各种软件配置会让我们尽早地发现程序中的问题， &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://devin0910.github.io/blog/2013/09/13/a-new-way-to-set-up-develop-enviroment-using-vagrant">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:devin0910.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Vagrant：快速搭建Linux开发环境</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-09-13T13:46:00+08:00" pubdate data-updated="true">Sep 13<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h2>关于Vagrant</h2>
+
+<p>Vagrant是一个基于Ruby的工具，用于创建和部署虚拟化开发环境。它使用Oracle的开源Virtualbox虚拟化系统，使用Chef、Puppet创建自动化虚拟环境。使用虚拟化环境来模拟跟生产环境一样的各种软件配置会让我们尽早地发现程序中的问题，避免在上线之后出现各种莫名其妙的问题（如Linux系统中文件区分大小写而Windows则不会，以至于找不到相应的文件等）。</p>
+
+<h2>运行简介</h2>
+
+<p>首先使用<code>vagrant init</code>命令来生成一个Vagrantfile，当然你也可以在执行这个命令的时候附加box的名称、链接地址。Box可以理解为一个虚拟机的模板，vagrant会导入这个模板，然后在这个模板的基础上进行各种配置，如设置IP、挂载共享目录、运行puppet脚本等。如<code>vagrant init precise32 http://files.vagrantup.com/precise32.box</code>，如果本地不存在这样的一个box，会从远程下载这个box，并添加到box list中。你可以通过<code>vagrant box list</code>查看本地的box list。当然你也可以通过<code>vagrant box remove precise32 virtualbox</code>来删除这个box。也有另外一个添加box的命令<code>vagrant box add name url</code>来添加box，如果需要你可以在<a href="http://www.vagrantbox.es/">Vagrant Boxes</a>找到更多不同类型的操作系统的boxes，添加到本地，然后以这box为模板创建另外的操作系统环境。</p>
+
+<p>接下来，你可以运行<code>vagrant up</code>来启动这个虚拟机。虚拟机起来之后你可以使用<code>vagrant ssh</code>连接到这个服务器上，当然你也可以xshell等工具来连接，对虚拟机进行管理。当你配置文件改变时，你可以使用<code>vagrant reload</code>来重新加载配置。通过<code>vagrant halt</code>，可以停止这个虚拟机，如果不能正常关闭，可以通过&mdash;force选项来直接关闭虚拟机的电源。当你不再需要这个虚拟机时，可以通过<code>vagrant destroy</code>来销毁这个虚拟机。</p>
+
+<h2>使用<a href="https://puphpet.com/">PuPHPet</a>来配置PHP开发环境</h2>
+
+<p><a href="https://puphpet.com/">PuPHPet</a>是一个用来配置PHP开发环境的GUI工具。你可以在上面选择操作系统的类型，虚拟机名称，IP地址，需要安装的软件；选择HTTP Server（Apache or Nginx），配置apache的模块，Virtual Host，端口、目录、环境变量等等；选择PHP的版本，需要安装的扩展、Composer、Xdebug、XHProf的配置，时区，ini中基本配置如是否显示错误等；选择数据库，Mysl or PostgresSQL，配置相关参数等等。当你选择好自己的配置后，点击“Create My Manifest！”下载对应的Vagrantfile及一些Puppet脚本，解压该文件，然后运行<code>vagrant up</code>等待虚拟机的自动搭建完成即可使用了。以后只要在团队中分享配置文件，就可以使得团队中使用一致的开发环境，简化并大大节省了开发人员的自己搭建开发环境时间。</p>
+
+<h2>关于.vagrant.d目录和VirtualBox</h2>
+
+<p>Vagrant默认情况下会把下载的box放在用户家目录下的.vagrant.d目录中。如果添加的box过多了，会导致C盘空间变少，你只需要在环境变量中添加<code>VAGRANT_HOME</code>，指定到另外的盘符，然后把.vagrant.d下的文件拷贝到该目录下即可。还有就是Virtual Box的虚拟电脑位置，在“管理->全局设定->常规”中指定“默认虚拟电脑位置”到空间比较大的盘符中。如果已经在C盘中，整个过程会比较麻烦，需要打开VirtualBox然后选中虚拟机，复制到另外的盘符，然后得修改该虚拟机配置下的.vagrant\machines\default\virtualbox中的id文件，该文件记录了虚拟机的uuid。可以查看刚复制过去的虚拟机目录中xxx.vbox文件，可以找到类似于“Machine uuid=&ldquo;{ccc58f40-4e4b-41b4-8098-02712170c51a}&#8221;”这样的一段文字，拷贝该uuid到id文件中即可。</p>
+
+<p>这里只是简单的介绍了一下Vagrant的基本用法，想要了解更多可以查看<a href="http://docs.vagrantup.com/v2/">官网文档</a>。你也可以了解下<a href="http://puppetlabs.com/">Puppet</a>，<a href="http://www.opscode.com/chef/">Chef</a>自动化部署脚本工具。</p>
+
+<p>参考：</p>
+
+<ol>
+<li><a href="http://www.vagrantup.com/">Vagrant官网</a></li>
+<li><a href="http://linbo.github.io/2013/03/09/vagrantboxes/">Vagrant改变boxes存放路径</a></li>
+</ol>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-09-13T13:46:00+08:00" pubdate data-updated="true">Sep 13<span>th</span>, 2013</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/luan-qi-ba-zao/'>乱七八糟</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://devin0910.github.io/blog/2013/09/13/a-new-way-to-set-up-develop-enviroment-using-vagrant/" data-via="" data-counturl="http://devin0910.github.io/blog/2013/09/13/a-new-way-to-set-up-develop-enviroment-using-vagrant/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/08/12/creating-permissions-using-bitwise-operators/" title="Previous Post: 使用位运算实现权限管理">&laquo; 使用位运算实现权限管理</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/09/13/a-new-way-to-set-up-develop-enviroment-using-vagrant/">Vagrant：快速搭建Linux开发环境</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/08/12/creating-permissions-using-bitwise-operators/">使用位运算实现权限管理</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/08/02/setting-up-existing-octopress-blog-on-a-new-computer/">怎样在新的环境中配置原有的Octopress博客</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/23/building-tree-structures-in-php-using-references/">使用PHP引用来生成树结构</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/19/generator-new-feature-in-php/">生成器：PHP5.5中的新特性</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

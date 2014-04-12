@@ -1,0 +1,330 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>cURL的一些妙用 - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="关于cURL 根据Wiki上的介绍： cURL是一个利用URL语法在命令行下工作的文件传输工具，1997年首次发行。它支持文件上传和下载，所以是综合传输工具，但按传统，习惯称cURL为下载工具。cURL还包含了用于程序开发的libcurl。cURL支援的通讯协定有FTP、FTPS、HTTP、 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://devin0910.github.io/blog/2013/07/12/a-brief-introduction-to-curl">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:devin0910.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">cURL的一些妙用</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-07-12T10:26:00+08:00" pubdate data-updated="true">Jul 12<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h2>关于cURL</h2>
+
+<p>根据<a href="http://zh.wikipedia.org/wiki/CURL">Wiki</a>上的介绍：</p>
+
+<blockquote><p>cURL是一个利用URL语法在命令行下工作的文件传输工具，1997年首次发行。它支持文件上传和下载，所以是综合传输工具，但按传统，习惯称cURL为下载工具。cURL还包含了用于程序开发的libcurl。cURL支援的通讯协定有FTP、FTPS、HTTP、HTTPS、TFTP、SFTP、Gopher、SCP、Telnet、DICT、FILE、LDAP、LDAPS、IMAP、POP3、SMTP和RTSP。</p></blockquote>
+
+<p>在Ubuntu下你可以通过下面这个命令<code>apt-get install curl</code>来安装cURL，如果你使用的是Windows，那么你可以通过安装cygwin或者直接<a href="http://curl.haxx.se/download.html#Win64">点击这儿</a>下载相应的版本。安装成功之后，你可以通过<code>curl --help</code>查看这个命令的相关参数介绍。</p>
+
+<h2>入门篇</h2>
+
+<ol>
+<li><p>查看网页源码：</p>
+
+<p> curl <a href="http://www.netscape.com/">http://www.netscape.com/</a></p></li>
+</ol>
+
+
+<p>&mdash;&mdash;&mdash;&mdash;输出内容：</p>
+
+<pre><code>&lt;!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN"&gt;
+&lt;html&gt;&lt;head&gt;
+&lt;title&gt;301 Moved Permanently&lt;/title&gt;
+&lt;/head&gt;&lt;body&gt;
+&lt;h1&gt;Moved Permanently&lt;/h1&gt;
+&lt;p&gt;The document has moved &lt;a href="http://netscape.aol.com"&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;/body&gt;&lt;/html&gt;
+</code></pre>
+
+<p>你也可以通过</p>
+
+<pre><code>curl ftp://ftp.funet.fi/README
+</code></pre>
+
+<p>查看远程ftp服务器上的文件内容。</p>
+
+<ol>
+<li><p>保存文件内容：
+上面我们讲到了如何查看远程服务器上的内容，那怎么保存在本地呢？
+通过<code>curl --help</code>可以看到-o选项可以让实现这个功能：</p>
+
+<p>  -o, &mdash;output FILE   Write output to <file> instead of stdout</p></li>
+</ol>
+
+
+<p>那么，如果要保存远程文件，可以使用下面的命令：<code>curl -o test.html http://www.netscape.com/</code>，这样你就可以在当前命令行的目录下可以看到多出了一个test.html文件（你可以把文件保存成任意名称的，只需修改-o后面的参数即可）。
+如果想要保持本地保存的文件名跟远程文件名一致，只需要指定参数<code>-O</code>:</p>
+
+<pre><code>-O, --remote-name   Write output to a file named as the remote file
+</code></pre>
+
+<p>比如：<code>curl -O ftp://ftp.funet.fi/README</code>。</p>
+
+<ol>
+<li><p>指定用户名、密码：
+当使用ftp传输文件需要指定用户名、密码时，我们可以在url中包含它们，eg：<code>curl ftp://name:passwd@machine.domain:port/full/path/to/file</code>也可以使用-u选项：<code>curl -u name:passwd ftp://machine.domain:port/full/path/to/file</code>。</p></li>
+<li><p>自动跳转：
+第一个示例中，我们可以看到，这个站点已被重定向了，可以使用<code>-L</code>参数：</p>
+
+<p>  -L, &mdash;location      Follow redirects (H)</p></li>
+</ol>
+
+
+<p>那么现在这个命令应该是<code>curl -L http://www.netscape.com/</code></p>
+
+<h2>表单提交</h2>
+
+<p>有时候当你写完后台程序功能，为了测试表单功能是否正确需要模拟测试，你可以简单的通过写html页面模拟一个表单或者通过js的Ajax来模拟一个请求。其实还有个更简便的方法&mdash;使用cURL。</p>
+
+<ol>
+<li><p>测试GET方法：
+测试GET方法其实很简单，可以直接在url后面跟参数，比如<code>curl "http://localhost/test/index.php?a=a&amp;b=b"</code>
+注意：如果不对链接加双引号<code>curl http://localhost/test/index.php?a=a&amp;b=b</code>，则只会取到第一参数，在这个例子中为<code>a=a</code>。在linux下，&amp;会使进程系统后台运行，必须对&amp;进行下转义：
+<code>curl http://localhost/test/index.php?a=a\&amp;b=b</code>。</p></li>
+<li><p>测试POST方法：
+模拟表单提交很简单，只需要在<code>-d</code>参数后跟需要提交的参数键值对，例如：
+<code>curl -d "name=test&amp;age=22" http://localhost/test/index.php</code>。需要注意的是所有通过post提交的数据需要进行编码，比如“test 1”编码后为&#8221;test%201&#8221;,可以通过js的<code>encodeURIComponent</code>函数，或者php的<code>urlencode</code>函数等。</p></li>
+</ol>
+
+
+<p><code>-F</code>指令可接受类似于<code>-F "name=contents"</code>的参数。如果你上传的内容是从文件里读取的，使用&lt;@filename>作为内容。当你指定一个文件时，也可以在文件名后跟文件的内容类型<code>";type=&lt;mime type&gt;"</code>,比如：<code>curl -F "coolfiles=@b.png;type=image/png" http://localhost/test/index.php</code>。</p>
+
+<p>cURL默认的HTTP动词是GET，使用-X参数可以支持其他动词，如delete <code>curl -X DELETE http://localhost/test/index.php</code>，结果类似于<code>[REQUEST_METHOD] =&gt; DELETE</code>。</p>
+
+<h3>设置cookie，更改头信息等</h3>
+
+<ol>
+<li><p>设置cookie：
+<code>curl -b "test=test-cookie" http://localhost/test/index.php</code>
+<code>curl --cookie "test=test-cookie" http://localhost/test/index.php</code></p></li>
+<li><p>增加头信息：
+<code>curl -H "X-you-and-me: yes" http://localhost/test/index.php</code>
+<code>curl --header "X-you-and-me: yes" http://localhost/test/index.php</code></p></li>
+<li><p>更改User Agent：
+User Agent用来表示客户端的设备信息，服务器有时会根据这个字段，针对不同设备，返回不同格式的网页，比如手机版和桌面版。默认使用cURL的情况下，返回的头部信息类似于：<code>[User-Agent] =&gt; curl/7.26.0</code>。我们可以使用下面的命令<code>curl -A 'Mozilla/5.0' http://localhost/test/index.php</code>来更改User Agent。上述输出为：<code>[User-Agent] =&gt; 'Mozilla/5.0'</code>。</p></li>
+</ol>
+
+
+<h2>Conclusion</h2>
+
+<p>就像cURL官网介绍的：</p>
+
+<blockquote><p>curl groks(凭直觉深刻了解；欣赏；神交) URLs</p></blockquote>
+
+<p>cURL可以称得上是网络传输相关的瑞士军刀，你可以在<a href="http://curl.haxx.se/docs/manual.html">cURL官方手册</a>找到更多的高级使用方法。</p>
+
+<p>参考：</p>
+
+<ol>
+<li><a href="http://curl.haxx.se/docs/manual.html">cURL官方手册</a></li>
+<li><a href="http://www.ruanyifeng.com/blog/2011/09/curl.html">curl网站开发指南</a></li>
+</ol>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-07-12T10:26:00+08:00" pubdate data-updated="true">Jul 12<span>th</span>, 2013</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/luan-qi-ba-zao/'>乱七八糟</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://devin0910.github.io/blog/2013/07/12/a-brief-introduction-to-curl/" data-via="" data-counturl="http://devin0910.github.io/blog/2013/07/12/a-brief-introduction-to-curl/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/07/11/introduce-to-spl/" title="Previous Post: 介绍SPL-迭代器篇">&laquo; 介绍SPL-迭代器篇</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/07/15/how-to-configure-sublime-text-3/" title="Next Post: 怎样来配置你的Sublime Text 3">怎样来配置你的Sublime Text 3 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/09/13/a-new-way-to-set-up-develop-enviroment-using-vagrant/">Vagrant：快速搭建Linux开发环境</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/08/12/creating-permissions-using-bitwise-operators/">使用位运算实现权限管理</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/08/02/setting-up-existing-octopress-blog-on-a-new-computer/">怎样在新的环境中配置原有的Octopress博客</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/23/building-tree-structures-in-php-using-references/">使用PHP引用来生成树结构</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/19/generator-new-feature-in-php/">生成器：PHP5.5中的新特性</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

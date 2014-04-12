@@ -1,0 +1,404 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>控制反转(IoC)与依赖注入(DI) - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="什么是控制反转 控制反转（Inversion of control）是面向对象编程中的一种设计原则，可以用来降低计算机代码中的耦合度。控制反转作为一个设计准则具有一下几个意图： 通过接口解耦某项任务的特定实现
+各个模块只关注自己要实现的功能
+各个模块不知道另外的系统做什么，只依赖于它们间的契约 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://devin0910.github.io/blog/2013/07/16/inversion-of-control-and-dependency-injecton">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:devin0910.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">控制反转(IoC)与依赖注入(DI)</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-07-16T12:23:00+08:00" pubdate data-updated="true">Jul 16<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h2>什么是控制反转</h2>
+
+<p>控制反转（Inversion of control）是面向对象编程中的一种设计原则，可以用来降低计算机代码中的耦合度。控制反转作为一个设计准则具有一下几个意图：</p>
+
+<ul>
+<li>通过接口解耦某项任务的特定实现</li>
+<li>各个模块只关注自己要实现的功能</li>
+<li>各个模块不知道另外的系统做什么，只依赖于它们间的契约</li>
+<li>替换某个模块并不影响其他模块</li>
+</ul>
+
+
+<p>应用控制反转，对象在被创建的时候，由一个调控系统内的所有对象的外界实体将其依赖的对象的引用传递给它，也可以说，依赖被注入到对象中。所以说，控制反转是<em>关于一个对象如何获取它所依赖的对象的引用</em>这个职责的反转。</p>
+
+<h3>关于依赖</h3>
+
+<p>Class X依赖于Class Y只在如下的状况中成立：</p>
+
+<ul>
+<li>X拥有Y的控制并在X中使用</li>
+<li>X是Y的派生类</li>
+<li>X依赖于Z，而Z又依赖于Y（传递性）</li>
+</ul>
+
+
+<p>X依赖于Y并不表示Y也依赖于X。但如果X和Y同时依赖于对方，这种依赖性被称为循环依赖。这时，X无法和Y分开单独使用，反之亦然。如果在一个面向对象程序中拥有太多的循环依赖，这可能表示这个程序是欠佳的设计。</p>
+
+<h3>如何实现控制反转</h3>
+
+<ul>
+<li>使用工厂模式</li>
+<li>使用服务定位模式</li>
+<li>使用依赖注入
+
+<ul>
+<li>基于构造函数</li>
+<li>基于参数</li>
+<li>基于setter</li>
+<li>基于接口</li>
+</ul>
+</li>
+<li>通过上下文查找依赖：容器提供回调接口和上下文环境给组件（EJB，Apache Avalon等），经常融合了服务定位模式。</li>
+</ul>
+
+
+<h2>什么是依赖注入</h2>
+
+<p>比如某个网站需要实现通知功能的功能，实例代码如下:</p>
+
+<pre><code>&lt;?php
+
+class NotifyService
+{
+    public function notify();
+}
+
+class User
+{
+    // 发送通知信息
+    public function ntofiy()
+    {
+        // ... 省略处理逻辑
+        $notifyService = new NotifyService();
+        $notifyService-&gt;notify();
+        // ...
+    }
+}
+</code></pre>
+
+<p>上面的代码中，耦合了通知的特定实现，必须要知道是何种通知形式，比如说邮件通知或者短信等等。如何从上面的代码从解耦出这一依赖呢？很明显，大家都会想到提取接口。</p>
+
+<pre><code>&lt;?php
+
+interface INotifyService
+{
+    abstract public function notify();
+}
+
+class EmailNotifyService implements INotifyService
+{
+    public function notify()
+    {
+        // 通过邮件发送
+    }
+}
+
+class SMSNotifyService implements INotifyService
+{
+    public function notify()
+    {
+        // 通过发短信
+    }
+}
+</code></pre>
+
+<p>通过上面这段代码，可以扩展出不同的通知类型，比如新增一个站内信的通知类型，只需要简单的继承INotifyService这个接口，实现notify方法就可以了。</p>
+
+<p>那么如何让用户反转对通知形式的依赖呢？</p>
+
+<p>通过构造器：</p>
+
+<pre><code>&lt;?php
+
+class User
+{
+    private $_notifyService;
+
+    public function __construct(INotifyService $notifyService)
+    {
+        $this-&gt;_notifyService = $notifyService;
+    }
+}
+</code></pre>
+
+<p>通过setter：</p>
+
+<pre><code>&lt;?php
+
+class User
+{
+    private $_notifyService;
+
+    public function setNotifyService(INotifyService $notifyService)
+    {
+        $this-&gt;_notifyService = $notifyService;
+    }
+}
+</code></pre>
+
+<p>通过上面的代码的改动，我们可以在User的notify方法中简单的使用<code>$this-&gt;_notifyService-&gt;notify()</code>。</p>
+
+<p>将选择抽象实现的职责一道服务消费者类的外部，拓展成Service Locator模式：<br/>
+这里简单的使用了<a href="https://github.com/fabpot/Pimple">Pimple库</a>作为一个Service Container。</p>
+
+<pre><code>&lt;?php
+
+$serviceContainer = new Pimple();
+
+$serviceContainer['email-notify'] = function ($c) {
+    $emailNotifyService = new EmailNotifyService();
+    // ......
+    return $emailNotifyService;
+};
+
+$serviceContainer['sms-notfiy'] = function ($c) {
+    $smsNofiyService = new SMSNotifyService();
+    // ......
+    return $smsNofiyService;
+}
+
+
+class User
+{
+    private $_serviceContainer;
+
+    public function __construct($serviceContainer)
+    {
+        $this-&gt;_serviceContainer = $serviceContainer;
+    }
+
+    public function notify()
+    {
+        $this-&gt;_serviceContainer['email-notify']-&gt;notify();
+    }
+}
+
+$user = new User($serviceContainer);
+$user-&gt;notify();
+</code></pre>
+
+<p>举例不恰当，User类破坏了<a href="http://zh.wikipedia.org/wiki/%E5%BC%80%E9%97%AD%E5%8E%9F%E5%88%99">OCP原则（开闭原则）</a>，即对扩展开放，对修改封闭。</p>
+
+<p>依赖注入是这样一个过程：客户类只依赖于服务类的一个接口，而不依赖于具体服务类，所以客户类只定义一个注入点。在程序运行过程中，客户类不直接实例化具体服务类示例，而是客户类的运行上下文环境或专门组件负责实例化服务类，然后将其注入到客户类中，保证客户类的正常运行。</p>
+
+<p>想了解更多，继续看下面的资料：</p>
+
+<ul>
+<li><a href="http://en.wikipedia.org/wiki/Inversion_of_control">Wiki IoC</a></li>
+<li><a href="http://zh.wikipedia.org/wiki/%E6%8E%A7%E5%88%B6%E5%8F%8D%E8%BD%AC">Wiki IoC中文</a></li>
+<li><a href="http://www.objectmentor.com/resources/articles/dip.pdf">The Dependency Inversion Principle</a></li>
+<li><a href="http://symfony.com/doc/current/components/dependency_injection/introduction.html#basic-usage">Symfony Dependency Injection Component</a></li>
+<li><a href="https://github.com/fabpot/Pimple">Pimple is a small Dependency Injection Container for PHP 5.3</a></li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-07-16T12:23:00+08:00" pubdate data-updated="true">Jul 16<span>th</span>, 2013</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/tou-tou-shi-dao/'>头头是道</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://devin0910.github.io/blog/2013/07/16/inversion-of-control-and-dependency-injecton/" data-via="" data-counturl="http://devin0910.github.io/blog/2013/07/16/inversion-of-control-and-dependency-injecton/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/07/15/new-function-array-column-in-php-5-dot-5/" title="Previous Post: 关于PHP5.5中的新函数array_column">&laquo; 关于PHP5.5中的新函数array_column</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/07/19/generator-new-feature-in-php/" title="Next Post: 生成器：PHP5.5中的新特性">生成器：PHP5.5中的新特性 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/09/13/a-new-way-to-set-up-develop-enviroment-using-vagrant/">Vagrant：快速搭建Linux开发环境</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/08/12/creating-permissions-using-bitwise-operators/">使用位运算实现权限管理</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/08/02/setting-up-existing-octopress-blog-on-a-new-computer/">怎样在新的环境中配置原有的Octopress博客</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/23/building-tree-structures-in-php-using-references/">使用PHP引用来生成树结构</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/19/generator-new-feature-in-php/">生成器：PHP5.5中的新特性</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
